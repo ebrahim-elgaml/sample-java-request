@@ -1,0 +1,70 @@
+<project name="AntJavaProject" default="main" basedir=".">
+	<description>
+		Create a Java Project (JAR) with Ant build script to send http get request to retrieve data [Goeuro task]
+	</description>
+
+	<property name="task" value="DateUtils" />
+	
+	<!-- Java sources -->
+	<property name="src.dir" location="src" />
+	
+	<!-- Java classes -->
+	<property name="build.dir" location="bin" />
+	
+	<!-- Libraries -->
+    <property name="lib.dir" location="lib" />
+	
+	<!-- Output, Jar -->
+	<property name="dist.dir" location="dist" />
+	
+	<property name="main-class"  value="main.Main"/>
+	
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build.dir}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<!-- Compile the java code from ${src.dir} into ${build.dir} -->
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath" />
+	</target>
+
+	<target name="dist" depends="compile" description="package, output to JAR">
+
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist.dir}" />
+
+		<jar jarfile="${dist.dir}/GoEuroTest.jar" basedir="${build.dir}" >
+			<zipgroupfileset dir="lib" includes="*.jar" />
+		    <manifest>
+				<!-- create an executable Jar -->
+				<attribute name="Main-Class" value="main.Main" />
+		    </manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+	
+	<target name="run">
+		<java fork="true" classname="${main-class}">
+			<classpath>
+		    	<path refid="classpath"/>
+		        <path location="${dist.dir}/GoEuroTest.jar"/>
+		    </classpath>
+			<arg value="Berlin"/>
+		</java>            
+	</target>
+	
+	<!-- Default, run this -->
+	<target name="main" depends="clean, compile, dist" />
+	
+</project>
